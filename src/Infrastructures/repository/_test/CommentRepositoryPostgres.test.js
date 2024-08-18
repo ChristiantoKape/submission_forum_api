@@ -90,11 +90,11 @@ describe('CommentRepositoryPostgres', () => {
 
   describe('deleteComment function', () => {
     it('should delete comment from database', async () => {
-      await CommentsTableTestHelper.addComment({ id: 'comment-123' });
+      await CommentsTableTestHelper.addComment({ id: 'comment-123', threadId: 'thread-123' });
 
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
 
-      await commentRepositoryPostgres.deleteComment('comment-123');
+      await commentRepositoryPostgres.deleteComment('comment-123', 'thread-123');
 
       const comment = await CommentsTableTestHelper.findCommentById('comment-123');
 
