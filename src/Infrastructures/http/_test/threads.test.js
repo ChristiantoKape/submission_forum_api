@@ -77,7 +77,7 @@ describe('/threads endpoint', () => {
       expect(responseJson.message).toEqual('Missing authentication');
     });
 
-    it('should respond 400 when request payload not contain needed property', async () => {
+    it('should response 400 when request payload not contain needed property', async () => {
       const incompleteThreadPayload = {
         title: 'titleThread',
       };
