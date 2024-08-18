@@ -49,4 +49,56 @@ describe('CommentRepositoryPostgres', () => {
       }));
     });
   });
+
+  describe('verifyAvailableComment function', () => {
+    it('should throw NotFoundError when comment not available', async () => {
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+
+      await expect(commentRepositoryPostgres.verifyAvailableComment('comment-190'))
+        .rejects.toThrowError('Komentar tidak ditemukan');
+    });
+
+    it('should not throw NotFoundError when comment available', async () => {
+      await CommentsTableTestHelper.addComment({ id: 'comment-123' });
+
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+
+      await expect(commentRepositoryPostgres.verifyAvailableComment('comment-123'))
+        .resolves.not.toThrowError('Komentar tidak ditemukan');
+    });
+  });
+
+  describe('verifyCommentOwner function', () => {
+    it('should throw AuthorizationError when user not the owner', async () => {
+      await CommentsTableTestHelper.addComment({ id: 'comment-123', owner: 'user-123' });
+
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+
+      await expect(commentRepositoryPostgres.verifyCommentOwner('comment-123', 'user-124'))
+        .rejects.toThrowError('Anda tidak berhak mengakses resource ini');
+    });
+
+    it('should not throw AuthorizationError when user the owner', async () => {
+      await CommentsTableTestHelper.addComment({ id: 'comment-123', owner: 'user-123' });
+
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+
+      await expect(commentRepositoryPostgres.verifyCommentOwner('comment-123', 'user-123'))
+        .resolves.not.toThrowError('Anda tidak berhak mengakses resource ini');
+    });
+  });
+
+  describe('deleteComment function', () => {
+    it('should delete comment from database', async () => {
+      await CommentsTableTestHelper.addComment({ id: 'comment-123' });
+
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+
+      await commentRepositoryPostgres.deleteComment('comment-123');
+
+      const comment = await CommentsTableTestHelper.findCommentById('comment-123');
+
+      expect(comment[0].is_deleted).toEqual(true);
+    });
+  });
 });
