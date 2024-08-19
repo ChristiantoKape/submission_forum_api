@@ -25,6 +25,15 @@ class CommentRepositoryPostgres extends CommentRepository {
     return new RetrievedComment({ ...result.rows[0] });
   }
 
+  async deleteComment(commentId, threadId) {
+    const query = {
+      text: 'UPDATE comments SET is_deleted = true WHERE id = $1 AND thread_id = $2',
+      values: [commentId, threadId],
+    };
+
+    await this._pool.query(query);
+  }
+
   async verifyAvailableComment(commentId) {
     const query = {
       text: 'SELECT * FROM comments WHERE id = $1',
@@ -51,13 +60,18 @@ class CommentRepositoryPostgres extends CommentRepository {
     }
   }
 
-  async deleteComment(commentId, threadId) {
+  async retrieveThreadComments(threadId) {
     const query = {
-      text: 'UPDATE comments SET is_deleted = true WHERE id = $1 AND thread_id = $2',
-      values: [commentId, threadId],
+      text: `SELECT  comments.id, comments.content, comments.date, users.username, comments.is_deleted::boolean as isDeleted
+              FROM comments 
+              INNER JOIN users ON comments.owner = users.id
+              WHERE comments.thread_id = $1
+              ORDER BY comments.date ASC`,
+      values: [threadId],
     };
 
-    await this._pool.query(query);
+    const result = await this._pool.query(query);
+    return result.rows;
   }
 }
 

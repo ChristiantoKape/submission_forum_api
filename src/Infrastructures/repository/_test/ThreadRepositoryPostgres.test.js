@@ -1,6 +1,7 @@
 const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 const AddThread = require('../../../Domains/threads/entities/AddThread');
+const DetailThread = require('../../../Domains/threads/entities/DetailThread');
 const RetrievedThread = require('../../../Domains/threads/entities/RetrievedThread');
 const ThreadRepositoryPostgres = require('../ThreadRepositoryPostgres');
 const pool = require('../../database/postgres/pool');
@@ -55,6 +56,23 @@ describe('ThreadRepositoryPostgres', () => {
 
       const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, {});
       await expect(threadRepositoryPostgres.verifyAvailableThread('thread-123')).resolves.not.toThrowError(NotFoundError);
+    });
+  });
+
+  describe('retrieveDetailThread function', () => {
+    it('should return detail thread correctly', async () => {
+      await ThreadsTableTestHelper.addThread({ id: 'thread-123' });
+
+      const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, {});
+      const detailThread = await threadRepositoryPostgres.retrieveDetailThread('thread-123');
+
+      expect(detailThread).toEqual(new DetailThread({
+        id: 'thread-123',
+        title: 'titleThread',
+        body: 'bodyThread',
+        date: '2021-08-08T07:22:33.555Z',
+        username: 'dicoding Indonesia',
+      }));
     });
   });
 });

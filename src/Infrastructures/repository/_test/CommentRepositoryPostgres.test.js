@@ -5,6 +5,7 @@ const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
 const pool = require('../../database/postgres/pool');
+const DetailComment = require('../../../Domains/comments/entities/DetailComment');
 
 describe('CommentRepositoryPostgres', () => {
   afterEach(async () => {
@@ -50,6 +51,20 @@ describe('CommentRepositoryPostgres', () => {
     });
   });
 
+  describe('deleteComment function', () => {
+    it('should delete comment from database', async () => {
+      await CommentsTableTestHelper.addComment({ id: 'comment-123', threadId: 'thread-123' });
+
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+
+      await commentRepositoryPostgres.deleteComment('comment-123', 'thread-123');
+
+      const comment = await CommentsTableTestHelper.findCommentById('comment-123');
+
+      expect(comment[0].is_deleted).toEqual(true);
+    });
+  });
+
   describe('verifyAvailableComment function', () => {
     it('should throw NotFoundError when comment not available', async () => {
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
@@ -88,17 +103,22 @@ describe('CommentRepositoryPostgres', () => {
     });
   });
 
-  describe('deleteComment function', () => {
-    it('should delete comment from database', async () => {
+  describe('retrieveThreadComments function', () => {
+    it('should return comments by thread id correctly', async () => {
       await CommentsTableTestHelper.addComment({ id: 'comment-123', threadId: 'thread-123' });
 
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+      const comments = await commentRepositoryPostgres.retrieveThreadComments('thread-123');
 
-      await commentRepositoryPostgres.deleteComment('comment-123', 'thread-123');
-
-      const comment = await CommentsTableTestHelper.findCommentById('comment-123');
-
-      expect(comment[0].is_deleted).toEqual(true);
+      expect(comments).toEqual([
+        {
+          id: 'comment-123',
+          username: 'dicoding Indonesia',
+          date: '2021-08-08T07:22:33.555Z',
+          content: 'commentThread',
+          isdeleted: false,
+        },
+      ]);
     });
   });
 });
