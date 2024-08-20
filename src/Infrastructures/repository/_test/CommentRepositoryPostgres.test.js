@@ -5,7 +5,6 @@ const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
 const pool = require('../../database/postgres/pool');
-const DetailComment = require('../../../Domains/comments/entities/DetailComment');
 
 describe('CommentRepositoryPostgres', () => {
   afterEach(async () => {
@@ -61,7 +60,14 @@ describe('CommentRepositoryPostgres', () => {
 
       const comment = await CommentsTableTestHelper.findCommentById('comment-123');
 
-      expect(comment[0].is_deleted).toEqual(true);
+      expect(comment[0]).toStrictEqual({
+        id: 'comment-123',
+        content: 'commentThread',
+        thread_id: 'thread-123',
+        owner: 'user-123',
+        is_deleted: true,
+        date: '2021-08-08T07:22:33.555Z',
+      });
     });
   });
 
