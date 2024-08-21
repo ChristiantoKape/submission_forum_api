@@ -6,6 +6,8 @@ const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 const ReplyRepositoryPostgres = require('../ReplyRepositoryPostgres');
 const pool = require('../../database/postgres/pool');
+const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
+const AuthorizationError = require('../../../Commons/exceptions/AuthorizationError');
 
 describe('ReplyRepositoryPostgres', () => {
   afterEach(async () => {
@@ -81,7 +83,7 @@ describe('ReplyRepositoryPostgres', () => {
       const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, {});
 
       await expect(replyRepositoryPostgres.verifyAvailableReply('reply-123'))
-        .rejects.toThrowError('Reply tidak ditemukan');
+        .rejects.toThrowError(NotFoundError);
     });
 
     it('should not throw NotFoundError when reply available', async () => {
@@ -92,7 +94,7 @@ describe('ReplyRepositoryPostgres', () => {
       const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, {});
 
       await expect(replyRepositoryPostgres.verifyAvailableReply('reply-180'))
-        .resolves.not.toThrowError('Reply tidak ditemukan');
+        .resolves.not.toThrowError(NotFoundError);
     });
   });
 
@@ -101,7 +103,7 @@ describe('ReplyRepositoryPostgres', () => {
       const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, {});
 
       await expect(replyRepositoryPostgres.verifyReplyOwner('reply-123', 'user-123'))
-        .rejects.toThrowError('Anda tidak berhak mengakses resource ini');
+        .rejects.toThrowError(AuthorizationError);
     });
 
     it('should not throw AuthorizationError when reply owned by owner', async () => {
@@ -112,7 +114,7 @@ describe('ReplyRepositoryPostgres', () => {
       const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, {});
 
       await expect(replyRepositoryPostgres.verifyReplyOwner('reply-180', 'user-123'))
-        .resolves.not.toThrowError('Anda tidak berhak mengakses resource ini');
+        .resolves.not.toThrowError(AuthorizationError);
     });
   });
 

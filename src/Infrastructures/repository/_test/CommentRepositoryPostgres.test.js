@@ -5,6 +5,8 @@ const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
 const pool = require('../../database/postgres/pool');
+const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
+const AuthorizationError = require('../../../Commons/exceptions/AuthorizationError');
 
 describe('CommentRepositoryPostgres', () => {
   afterEach(async () => {
@@ -76,7 +78,7 @@ describe('CommentRepositoryPostgres', () => {
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
 
       await expect(commentRepositoryPostgres.verifyAvailableComment('comment-190'))
-        .rejects.toThrowError('Komentar tidak ditemukan');
+        .rejects.toThrowError(NotFoundError);
     });
 
     it('should not throw NotFoundError when comment available', async () => {
@@ -85,7 +87,7 @@ describe('CommentRepositoryPostgres', () => {
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
 
       await expect(commentRepositoryPostgres.verifyAvailableComment('comment-123'))
-        .resolves.not.toThrowError('Komentar tidak ditemukan');
+        .resolves.not.toThrowError(NotFoundError);
     });
   });
 
@@ -96,7 +98,7 @@ describe('CommentRepositoryPostgres', () => {
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
 
       await expect(commentRepositoryPostgres.verifyCommentOwner('comment-123', 'user-124'))
-        .rejects.toThrowError('Anda tidak berhak mengakses resource ini');
+        .rejects.toThrowError(AuthorizationError);
     });
 
     it('should not throw AuthorizationError when user the owner', async () => {
@@ -105,7 +107,7 @@ describe('CommentRepositoryPostgres', () => {
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
 
       await expect(commentRepositoryPostgres.verifyCommentOwner('comment-123', 'user-123'))
-        .resolves.not.toThrowError('Anda tidak berhak mengakses resource ini');
+        .resolves.not.toThrowError(AuthorizationError);
     });
   });
 
