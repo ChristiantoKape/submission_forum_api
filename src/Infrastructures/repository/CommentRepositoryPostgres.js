@@ -62,7 +62,7 @@ class CommentRepositoryPostgres extends CommentRepository {
 
   async retrieveThreadComments(threadId) {
     const query = {
-      text: `SELECT  comments.id, comments.content, comments.date, users.username, comments.is_deleted::boolean as isDeleted
+      text: `SELECT comments.id, comments.content, comments.date, users.username, comments.is_deleted::boolean as isDeleted
               FROM comments 
               INNER JOIN users ON comments.owner = users.id
               WHERE comments.thread_id = $1

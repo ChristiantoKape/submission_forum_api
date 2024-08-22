@@ -8,6 +8,7 @@ class DetailThread {
       body,
       date,
       username,
+      comments,
     } = payload;
 
     this.id = id;
@@ -15,6 +16,7 @@ class DetailThread {
     this.body = body;
     this.date = date;
     this.username = username;
+    this.comments = comments;
   }
 
   _verifyPayload({

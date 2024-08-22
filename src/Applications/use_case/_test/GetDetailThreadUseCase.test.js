@@ -17,6 +17,7 @@ describe('GetThreadUseCase', () => {
       body: 'isi dari sebuah thread',
       username: 'dicoding',
       date: '2021-08-08T07:59:06.339Z',
+      comments: [],
     });
 
     const expectedComments = [
@@ -53,23 +54,21 @@ describe('GetThreadUseCase', () => {
       }),
     ];
 
-    const expectedResult = {
+    const detailedComments = expectedComments.map(
+      comment => new DetailComment(comment, expectedReplies),
+    );
+
+    const expectedResult = new DetailThread({
       ...expectedThreadDetail,
-      comments: expectedComments.map((comment, index) => ({
-        ...comment,
-        replies: expectedReplies.map(reply => ({
-          id: reply.id,
-          content: reply.isdeleted ? '**balasan telah dihapus**' : reply.content,
-          date: reply.date,
-          username: reply.username,
-        })),
-        content: comment.isdeleted ? '**komentar telah dihapus**' : comment.content,
-      })),
-    };
+      comments: detailedComments,
+    });
 
     const mockThreadRepository = new ThreadRepository();
     const mockCommentRepository = new CommentRepository();
     const mockReplyRepository = new ReplyRepository();
+
+    mockThreadRepository.verifyAvailableThread = jest.fn()
+      .mockImplementation(() => Promise.resolve());
 
     mockThreadRepository.retrieveDetailThread = jest.fn()
       .mockResolvedValue(new DetailThread({
@@ -123,10 +122,9 @@ describe('GetThreadUseCase', () => {
     const result = await getDetailThreadUseCase.execute(threadIdParam);
 
     expect(result).toStrictEqual(expectedResult);
+    expect(mockThreadRepository.verifyAvailableThread).toBeCalledWith(threadIdParam);
     expect(mockThreadRepository.retrieveDetailThread).toBeCalledWith(threadIdParam);
     expect(mockCommentRepository.retrieveThreadComments).toBeCalledWith(threadIdParam);
-    expect(mockReplyRepository.retrieveCommentReplies)
-      .toHaveBeenCalledTimes(expectedComments.length);
     expectedComments.forEach(comment => {
       expect(mockReplyRepository.retrieveCommentReplies).toBeCalledWith(comment.id);
     });

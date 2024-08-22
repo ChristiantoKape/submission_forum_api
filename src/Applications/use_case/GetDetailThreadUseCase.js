@@ -1,6 +1,5 @@
 const DetailThread = require('../../Domains/threads/entities/DetailThread');
 const DetailComment = require('../../Domains/comments/entities/DetailComment');
-const DetailReply = require('../../Domains/replies/entities/DetailReply');
 
 class GetThreadUseCase {
   constructor({ threadRepository, commentRepository, replyRepository }) {
@@ -10,31 +9,17 @@ class GetThreadUseCase {
   }
 
   async execute(threadId) {
-    const threadDetail = await this._threadRepository.retrieveDetailThread(threadId);
-    const comments = await this._commentRepository.retrieveThreadComments(threadId);
+    await this._threadRepository.verifyAvailableThread(threadId);
+    const thread = await this._threadRepository.retrieveDetailThread(threadId);
+    const threadComments = await this._commentRepository.retrieveThreadComments(threadId);
 
-    const detailedComments = await Promise.all(comments.map(async (comment) => {
+    const detailedComments = await Promise.all(threadComments.map(async (comment) => {
       const replies = await this._replyRepository.retrieveCommentReplies(comment.id);
-
-      return {
-        id: comment.id,
-        username: comment.username,
-        date: comment.date,
-        replies: replies.map(reply => ({
-          id: reply.id,
-          content: reply.isdeleted ? '**balasan telah dihapus**' : reply.content,
-          date: reply.date,
-          username: reply.username,
-        })),
-        content: comment.isdeleted ? '**komentar telah dihapus**' : comment.content,
-      };
+      return new DetailComment(comment, replies);
     }));
+    thread.comments = detailedComments;
 
-    // Pastikan payload ke DetailThread sudah lengkap
-    return {
-      ...threadDetail,
-      comments: detailedComments,
-    };
+    return new DetailThread(thread);
   }
 }
 

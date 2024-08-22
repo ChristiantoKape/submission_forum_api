@@ -1,5 +1,5 @@
 class DetailComment {
-  constructor(payload) {
+  constructor(payload, replies = []) {
     this._verifyPayload(payload);
 
     const {
@@ -7,12 +7,14 @@ class DetailComment {
       username,
       date,
       content,
+      isdeleted,
     } = payload;
 
     this.id = id;
     this.username = username;
     this.date = date;
-    this.content = content;
+    this.content = isdeleted ? '**komentar telah dihapus**' : content;
+    this.replies = this._mapReplies(replies);
   }
 
   _verifyPayload({
@@ -28,6 +30,15 @@ class DetailComment {
     if (typeof id !== 'string' || typeof username !== 'string' || typeof date !== 'string' || typeof content !== 'string') {
       throw new Error('DETAIL_COMMENT.NOT_MEET_DATA_TYPE_SPECIFICATION');
     }
+  }
+
+  _mapReplies(replies) {
+    return replies.map((reply) => ({
+      id: reply.id,
+      content: reply.isdeleted ? '**balasan telah dihapus**' : reply.content,
+      date: reply.date,
+      username: reply.username,
+    }));
   }
 }
 
