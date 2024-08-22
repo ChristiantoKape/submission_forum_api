@@ -123,4 +123,96 @@ describe('/replies endpoint', () => {
       expect(responseJson.message).toEqual('tidak dapat membuat balasan karena properti yang dibutuhkan tidak ada');
     });
   });
+
+  describe('when DELETE /threads/{threadId}/comments/{commentId}/replies/{replyId}', () => {
+    it('should response 200 when reply deleted', async () => {
+      const userId = 'user-123';
+      const threadId = 'thread-123';
+      const commentId = 'comment-123';
+      const replyId = 'reply-123';
+
+      await UsersTableTestHelper.addUser({ id: userId });
+      await ThreadsTableTestHelper.addThread({ id: threadId, owner: userId });
+      await CommentsTableTestHelper.addComment({ id: commentId, threadId, owner: userId });
+      await RepliesTableTestHelper.addReply({ id: replyId, commentId, owner: userId });
+
+      const server = await createServer(container);
+      const accessToken = await container.getInstance(AuthenticationTokenManager.name)
+        .createAccessToken({ id: userId });
+
+      const response = await server.inject({
+        method: 'DELETE',
+        url: `/threads/${threadId}/comments/${commentId}/replies/${replyId}`,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      expect(response.statusCode).toEqual(200);
+      expect(JSON.parse(response.payload)).toEqual({
+        status: 'success',
+      });
+    });
+
+    it('should response 403 when user not owner of replies', async () => {
+      const userId = 'user-123';
+      const anotherUserId = 'user-124';
+      const threadId = 'thread-123';
+      const commentId = 'comment-123';
+      const replyId = 'reply-123';
+
+      await UsersTableTestHelper.addUser({ id: userId });
+      await UsersTableTestHelper.addUser({ id: anotherUserId, username: 'anotherDicoding' });
+
+      await ThreadsTableTestHelper.addThread({ id: threadId, owner: userId });
+
+      await CommentsTableTestHelper.addComment({ id: commentId, threadId, owner: userId });
+
+      await RepliesTableTestHelper.addReply({ id: replyId, commentId, owner: anotherUserId });
+
+      const server = await createServer(container);
+      const accessToken = await container.getInstance(AuthenticationTokenManager.name)
+        .createAccessToken({ id: userId });
+
+      const response = await server.inject({
+        method: 'DELETE',
+        url: `/threads/${threadId}/comments/${commentId}/replies/${replyId}`,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(403);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toEqual('Anda tidak berhak mengakses resource ini');
+    });
+
+    it('should response 404 when reply is not found', async () => {
+      const userId = 'user-123';
+      const threadId = 'thread-123';
+      const commentId = 'comment-123';
+
+      await UsersTableTestHelper.addUser({ id: userId });
+
+      await ThreadsTableTestHelper.addThread({ id: threadId, owner: userId });
+
+      const server = await createServer(container);
+      const accessToken = await container.getInstance(AuthenticationTokenManager.name)
+        .createAccessToken({ id: userId });
+
+      const response = await server.inject({
+        method: 'DELETE',
+        url: `/threads/${threadId}/comments/${commentId}/replies/reply-123`,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(404);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toEqual('Reply tidak ditemukan');
+    });
+  });
 });
