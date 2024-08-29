@@ -8,7 +8,7 @@ class DetailThread {
       body,
       date,
       username,
-      comments,
+      comments = [],
     } = payload;
 
     this.id = id;

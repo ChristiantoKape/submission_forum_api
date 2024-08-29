@@ -19,9 +19,8 @@ exports.up = (pgm) => {
       onDelete: 'cascade',
     },
     date: {
-      type: 'timestamp',
+      type: 'TEXT',
       notNull: true,
-      default: pgm.func('current_timestamp'),
     },
   });
 };
