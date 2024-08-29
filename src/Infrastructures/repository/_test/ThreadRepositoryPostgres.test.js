@@ -64,15 +64,18 @@ describe('ThreadRepositoryPostgres', () => {
       await ThreadsTableTestHelper.addThread({ id: 'thread-123' });
 
       const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, {});
-      const detailThread = await threadRepositoryPostgres.retrieveDetailThread('thread-123');
 
-      expect(detailThread).toEqual(new DetailThread({
-        id: 'thread-123',
-        title: 'titleThread',
-        body: 'bodyThread',
-        date: new Date('2021-08-08T07:22:33.555Z'),
-        username: 'dicoding Indonesia',
-      }));
+      const detailThread = await threadRepositoryPostgres.retrieveDetailThread('thread-123');
+      expect(detailThread).toEqual(
+        {
+          id: 'thread-123',
+          title: 'titleThread',
+          body: 'bodyThread',
+          date: '2021-08-08T07:22:33.555Z',
+          username: 'dicoding Indonesia',
+          comments: [],
+        },
+      );
     });
   });
 });

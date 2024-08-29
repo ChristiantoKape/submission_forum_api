@@ -68,7 +68,7 @@ describe('CommentRepositoryPostgres', () => {
         thread_id: 'thread-123',
         owner: 'user-123',
         is_deleted: true,
-        date: new Date('2021-08-08T07:22:33.555Z'),
+        date: '2021-08-08T07:22:33.555Z',
       });
     });
   });
@@ -122,7 +122,7 @@ describe('CommentRepositoryPostgres', () => {
         {
           id: 'comment-123',
           username: 'dicoding Indonesia',
-          date: new Date('2021-08-08T07:22:33.555Z'),
+          date: '2021-08-08T07:22:33.555Z',
           content: 'commentThread',
           isdeleted: false,
         },
