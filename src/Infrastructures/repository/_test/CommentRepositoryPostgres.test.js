@@ -122,7 +122,7 @@ describe('CommentRepositoryPostgres', () => {
         {
           id: 'comment-123',
           username: 'dicoding Indonesia',
-          date: '2021-08-08T07:22:33.555Z',
+          date: new Date('2021-08-08T07:22:33.555Z'),
           content: 'commentThread',
           isdeleted: false,
         },
