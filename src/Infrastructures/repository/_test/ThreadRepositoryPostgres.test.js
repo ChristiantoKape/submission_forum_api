@@ -72,6 +72,7 @@ describe('ThreadRepositoryPostgres', () => {
         body: 'bodyThread',
         date: '2021-08-08T07:22:33.555Z',
         username: 'dicoding Indonesia',
+        comments: [],
       }));
     });
   });
