@@ -8,12 +8,14 @@ class DetailComment {
       date,
       content,
       isdeleted,
+      likeCount,
     } = payload;
 
     this.id = id;
     this.username = username;
     this.date = date;
     this.content = isdeleted ? '**komentar telah dihapus**' : content;
+    this.likeCount = likeCount;
     this.replies = this._mapReplies(replies);
   }
 

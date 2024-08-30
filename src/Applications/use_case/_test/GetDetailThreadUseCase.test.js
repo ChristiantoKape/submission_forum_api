@@ -27,6 +27,7 @@ describe('GetThreadUseCase', () => {
         username: 'dicoding',
         date: '2021-08-08T07:59:06.339Z',
         isdeleted: false,
+        likeCount: 10,
       }),
       new DetailComment({
         id: 'comment-124',
@@ -34,6 +35,7 @@ describe('GetThreadUseCase', () => {
         username: 'dicoding',
         date: '2021-08-08T07:59:06.339Z',
         isdeleted: true,
+        likeCount: 0,
       }),
     ];
 
@@ -55,7 +57,7 @@ describe('GetThreadUseCase', () => {
     ];
 
     const detailedComments = expectedComments.map(
-      comment => new DetailComment(comment, expectedReplies),
+      (comment) => new DetailComment({ ...comment, likeCount: comment.likeCount }, expectedReplies),
     );
 
     const expectedResult = new DetailThread({
@@ -78,6 +80,7 @@ describe('GetThreadUseCase', () => {
         username: 'dicoding',
         date: '2021-08-08T07:59:06.339Z',
       }));
+
     mockCommentRepository.retrieveThreadComments = jest.fn()
       .mockResolvedValue([
         new DetailComment({
@@ -86,6 +89,7 @@ describe('GetThreadUseCase', () => {
           username: 'dicoding',
           date: '2021-08-08T07:59:06.339Z',
           isdeleted: false,
+          likeCount: 10,
         }),
         new DetailComment({
           id: 'comment-124',
@@ -93,8 +97,17 @@ describe('GetThreadUseCase', () => {
           username: 'dicoding',
           date: '2021-08-08T07:59:06.339Z',
           isdeleted: true,
+          likeCount: 0,
         }),
       ]);
+
+    mockCommentRepository.getCommentLikeCount = jest.fn()
+      .mockImplementation((commentId) => {
+        if (commentId === 'comment-123') return Promise.resolve(10);
+        if (commentId === 'comment-124') return Promise.resolve(0);
+        return Promise.resolve(0);
+      });
+
     mockReplyRepository.retrieveCommentReplies = jest.fn()
       .mockResolvedValue([
         new DetailReply({
@@ -125,8 +138,9 @@ describe('GetThreadUseCase', () => {
     expect(mockThreadRepository.verifyAvailableThread).toBeCalledWith(threadIdParam);
     expect(mockThreadRepository.retrieveDetailThread).toBeCalledWith(threadIdParam);
     expect(mockCommentRepository.retrieveThreadComments).toBeCalledWith(threadIdParam);
-    expectedComments.forEach(comment => {
-      expect(mockReplyRepository.retrieveCommentReplies).toBeCalledWith(comment.id);
+    expectedComments.forEach((expectedComment) => {
+      expect(mockReplyRepository.retrieveCommentReplies).toBeCalledWith(expectedComment.id);
+      expect(mockCommentRepository.getCommentLikeCount).toBeCalledWith(expectedComment.id);
     });
   });
 });
