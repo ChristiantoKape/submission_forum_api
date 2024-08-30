@@ -15,7 +15,9 @@ class GetThreadUseCase {
 
     const detailedComments = await Promise.all(threadComments.map(async (comment) => {
       const replies = await this._replyRepository.retrieveCommentReplies(comment.id);
-      return new DetailComment(comment, replies);
+      const likeCount = await this._commentRepository.getCommentLikeCount(comment.id);
+
+      return new DetailComment({ ...comment, likeCount }, replies);
     }));
     thread.comments = detailedComments;
 
