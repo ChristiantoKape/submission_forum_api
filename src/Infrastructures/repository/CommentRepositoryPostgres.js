@@ -74,6 +74,16 @@ class CommentRepositoryPostgres extends CommentRepository {
     return result.rows;
   }
 
+  async getCommentLikeCount(commentId) {
+    const query = {
+      text: 'SELECT COUNT(*) FROM comment_likes WHERE comment_id = $1',
+      values: [commentId],
+    };
+
+    const result = await this._pool.query(query);
+    return parseInt(result.rows[0].count, 10);
+  }
+
   async hasUserLikedComment(commentId, owner) {
     const query = {
       text: 'SELECT * FROM comment_likes WHERE comment_id = $1 AND owner = $2',
