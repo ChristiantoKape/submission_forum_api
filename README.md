@@ -66,11 +66,10 @@ Garuda Game Forum API adalah aplikasi back-end yang memungkinkan pengguna untuk 
 ### Rating & Certificate
 **Versi 1:**
 
-![versi1](![submission be-expert-v1](https://github.com/user-attachments/assets/5a066303-3b23-4f8a-ba88-6407e458c1ab)
-)
+![submission be-expert-v1](https://github.com/user-attachments/assets/5a066303-3b23-4f8a-ba88-6407e458c1ab)
 
 **Versi 2:**
 
-![versi2](https://i.ibb.co.com/3d9fz0c/v2.png)
+![submission be-expert-v2](https://github.com/user-attachments/assets/503d6bbd-8d12-433e-849d-3184721229a7)
 
 [Sertifikat Menjadi Back-End Developer Expert](https://www.dicoding.com/certificates/1RXYLRQN1PVM)
