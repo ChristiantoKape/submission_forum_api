@@ -40,6 +40,7 @@ Garuda Game Forum API adalah aplikasi back-end yang memungkinkan pengguna untuk 
     npm install
     ```
 3. Konfigurasi Environment:
+
     Buat file .env di root folder dan masukkan konfigurasi yang dibutuhkan seperti database connection, JWT secret key, dan konfigurasi lainnya.
 3. Menjalankan Aplikasi:
     ```sh
